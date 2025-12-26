@@ -1,6 +1,6 @@
 # capella_erp6
 
-A new Flutter project.
+Capella ERP 6.
 
 ## Getting Started
 
