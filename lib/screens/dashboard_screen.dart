@@ -9,8 +9,12 @@ import '../core/constants/app_colors.dart';
 import 'login_screen.dart';
 import 'chat_screen.dart';
 import 'ai_assistant_screen.dart';
-import 'settings_screen.dart';
+import 'profile_screen.dart';
 import 'dynamic_dashboard_tab.dart';
+import 'kanban_screen.dart';
+import 'employees_screen.dart';
+import 'request_screen.dart';
+import 'inbox_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,23 +22,39 @@ class DashboardScreen extends StatefulWidget {
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
+// ... (omitting unchanged lines for brevity if possible, but replace_file_content requires context)
+// Wait, I need to replace the import separately or in one go.
+// Let's replace the import block first.
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
+  bool _canAccessKanban = false;
   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ThemeService>(context, listen: false).loadTheme();
+      _checkPermissions();
     });
+  }
+
+  Future<void> _checkPermissions() async {
+    final auth = Provider.of<AuthService>(context, listen: false);
+    final hasAccess = await auth.canAccess('kanban');
+    if (mounted) {
+      setState(() {
+        _canAccessKanban = hasAccess;
+      });
+    }
   }
 
   final List<Widget> _pages = [
     const DynamicDashboardTab(),
-    const ChatScreen(),
-    const AiAssistantScreen(),
-    const SettingsScreen(),
+    const EmployeesScreen(),
+    const RequestScreen(),
+    const InboxScreen(),
+    const ProfileScreen(),
   ];
 
   void _logout() async {
@@ -49,6 +69,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: const Text("User"), // Replace with actual user name
+              accountEmail: const Text("user@example.com"), // Replace with actual email
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  "U",
+                  style: TextStyle(fontSize: 40.0, color: AppColors.primary),
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+              ),
+            ),
+            if (_canAccessKanban)
+            ExpansionTile(
+              leading: const HeroIcon(HeroIcons.briefcase),
+              title: const Text("Project"),
+              children: [
+                ListTile(
+                  leading: const SizedBox(width: 24), // Indent
+                  title: const Text("Kanban"),
+                  trailing: const HeroIcon(HeroIcons.chevronRight, size: 16),
+                  onTap: () {
+                     Navigator.pop(context); // Close drawer
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (_) => const KanbanScreen()),
+                     );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -79,6 +139,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                   // Menu Button
+                   Builder(
+                     builder: (context) => IconButton(
+                       icon: const HeroIcon(HeroIcons.bars3),
+                       onPressed: () => Scaffold.of(context).openDrawer(),
+                     ),
+                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -124,16 +191,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: HeroIcon(HeroIcons.chatBubbleLeftRight),
-              label: 'Chat',
+              icon: HeroIcon(HeroIcons.users),
+              label: 'Employees',
             ),
             BottomNavigationBarItem(
-              icon: HeroIcon(HeroIcons.sparkles),
-              label: 'AI',
+              icon: HeroIcon(HeroIcons.documentText), // Or plus circle
+              label: 'Request',
             ),
             BottomNavigationBarItem(
-              icon: HeroIcon(HeroIcons.cog6Tooth),
-              label: 'Settings',
+              icon: HeroIcon(HeroIcons.inbox),
+              label: 'Inbox',
+            ),
+            BottomNavigationBarItem(
+              icon: HeroIcon(HeroIcons.userCircle),
+              label: 'Account',
             ),
           ],
         ),

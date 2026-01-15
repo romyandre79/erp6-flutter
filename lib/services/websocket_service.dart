@@ -46,18 +46,20 @@ class WebSocketService {
         finalUrl = finalUrl.replaceFirst('http://', 'ws://');
       }
 
-      // Fix path if it points to old /ws but needs /api/ws/notifications
-      // User likely has WS_URL=.../ws in .env
+      // If user inputs a raw domain without protocol, assume wss if secure or ws otherwise? 
+      // best to leave it or have user type protocol.
+      
+      // Ensure path is correct if missing
+      // Logic: If user sets full WS URL in settings, trust it. 
+      // Only append if it looks like a base root URL.
+      // EXCEPTION: IF user explicitly used /ws (common abbreviation), map it to real endpoint
       if (finalUrl.endsWith('/ws')) {
-         finalUrl = finalUrl.replaceFirst('/ws', '/api/ws/notifications');
+          finalUrl = finalUrl.replaceFirst('/ws', '/api/ws/notifications');
       } else if (!finalUrl.contains('/api/ws/notifications')) {
-          // If just base url like 192.168.1.4:8888 without path
-          if (!finalUrl.endsWith('/')) finalUrl += '/';
-          if (!finalUrl.endsWith('api/ws/notifications')) {
-             // Append if missing, but be careful not to double append if user has something else.
-             // Safest is to rely on exact mismatch fix above, but let's try to be robust.
-             // If looks like root, add path.
-             // finalUrl += 'api/ws/notifications';
+          if (finalUrl.endsWith('/')) {
+             finalUrl += 'api/ws/notifications';
+          } else {
+             finalUrl += '/api/ws/notifications';
           }
       }
       

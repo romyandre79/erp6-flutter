@@ -49,6 +49,7 @@ class _DynamicStatCardState extends State<DynamicStatCard> {
         // The value might be in a specific field or just the data itself.
         // Let's assume the flow returns a simple scalar or object with 'value'
         final data = res['data'];
+        print("Data $data");
         if (data is Map && data.containsKey('count')) {
            setState(() => _value = data['count'].toString());
         } else if (data is Map && data.containsKey('value')) {

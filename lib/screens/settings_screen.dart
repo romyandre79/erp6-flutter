@@ -3,6 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../core/constants/app_colors.dart';
 
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../core/constants/app_colors.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -24,8 +29,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _apiUrlController.text = prefs.getString('api_url') ?? dotenv.env['API_URL'] ?? 'https://localhost:8888/api';
-      _wsUrlController.text = prefs.getString('ws_url') ?? dotenv.env['WS_URL'] ?? 'wss://localhost:8888/api/ws/notifications';
+      _apiUrlController.text = prefs.getString('api_url') ?? dotenv.env['API_URL'] ?? 'http://localhost:8888/api';
+      _wsUrlController.text = prefs.getString('ws_url') ?? dotenv.env['WS_URL'] ?? 'ws://localhost:8888/api/ws/notifications';
       _isLoading = false;
     });
   }
@@ -52,8 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.remove('ws_url');
     
     setState(() {
-      _apiUrlController.text = dotenv.env['API_URL'] ?? 'https://localhost:8888/api';
-      _wsUrlController.text = dotenv.env['WS_URL'] ?? 'wss://localhost:8888/api/ws/notifications';
+      _apiUrlController.text = dotenv.env['API_URL'] ?? 'http://localhost:8888/api';
+      _wsUrlController.text = dotenv.env['WS_URL'] ?? 'ws://localhost:8888/api/ws/notifications';
     });
     
     if (mounted) {
